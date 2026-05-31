@@ -34,12 +34,16 @@ int main()
         return -1;
     }
 
-    // Initialize primitive drawing
+    // Mouse input 
+    al_install_mouse();
+
+    // Initialize primitives
     al_init_primitives_addon();
 
     // Create and register the event queue
     event_queue = al_create_event_queue();
     al_register_event_source(event_queue, al_get_display_event_source(display));
+    al_register_event_source(event_queue, al_get_mouse_event_source());
 
     // Draw the starting grid
     al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -56,6 +60,22 @@ int main()
         {
             done = true;
         }
+        else if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
+        {
+            // Convert mouse coordinates into grid row and column
+            int mouseX = ev.mouse.x;
+            int mouseY = ev.mouse.y;
+
+            int col = mouseX / CELL_SIZE;
+            int row = mouseY / CELL_SIZE;
+
+            // This helps test that clicks are mapping to the correct square
+            printf("Clicked row: %d col: %d\n", row, col);
+        }
+
+        al_clear_to_color(al_map_rgb(0, 0, 0));
+        draw_grid();
+        al_flip_display();
     }
 
     al_destroy_event_queue(event_queue);
