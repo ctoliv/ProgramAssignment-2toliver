@@ -22,4 +22,7 @@ private:
 
     // Tracks which cards have already been matched
     bool matched[5][5];
+
+    // Randomly fills the board with 12 matching pairs
+    void createRandomBoard();
 };
