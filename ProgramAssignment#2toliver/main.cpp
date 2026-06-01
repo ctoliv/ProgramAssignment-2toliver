@@ -1,7 +1,9 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_font.h>
 #include <stdio.h>
 #include "logic.h"
+
 
 // Window and grid constants
 const int WIDTH = 640;
@@ -13,11 +15,13 @@ const int CELL_SIZE = 128;
 void draw_grid();
 void draw_cards(GameLogic& gameLogic);
 void draw_shape(int shape, int centerX, int centerY);
+void draw_status(GameLogic& gameLogic, ALLEGRO_FONT* font);
 
 int main()
 {
     ALLEGRO_DISPLAY* display = NULL;
     ALLEGRO_EVENT_QUEUE* event_queue = NULL;
+    ALLEGRO_FONT* font = NULL;
 
     bool done = false;
 
@@ -44,6 +48,9 @@ int main()
 
     // Initialize primitives
     al_init_primitives_addon();
+    al_init_font_addon();
+
+    font = al_create_builtin_font();
 
     // Create and register the event queue
     event_queue = al_create_event_queue();
@@ -77,6 +84,7 @@ int main()
         al_clear_to_color(al_map_rgb(0, 0, 0));
         draw_grid();
         draw_cards(gameLogic);
+        draw_status(gameLogic, font);
         al_flip_display();
     }
 
@@ -138,6 +146,26 @@ void draw_cards(GameLogic& gameLogic)
             }
         }
     }
+}
+
+void draw_status(GameLogic& gameLogic, ALLEGRO_FONT* font)
+{
+    int left = 4 * CELL_SIZE;
+    int top = 4 * CELL_SIZE;
+
+    // Status box uses the bottom-right square
+    al_draw_filled_rectangle(left, top, WIDTH, HEIGHT,
+        al_map_rgb(40, 80, 40));
+
+    // Display matched pairs
+    al_draw_textf(font, al_map_rgb(255, 255, 255),
+        left + 10, top + 30, 0,
+        "Matched: %d", gameLogic.getMatchedPairs());
+
+    // Display remaining pairs
+    al_draw_textf(font, al_map_rgb(255, 255, 255),
+        left + 10, top + 60, 0,
+        "Left: %d", gameLogic.getRemainingPairs());
 }
 
 // Draws a primitive shape based on the hidden shape ID
