@@ -164,6 +164,10 @@ bool GameLogic::hasPendingNonMatch()
     return pendingNonMatch;
 }
 
+bool GameLogic::isGameOver()
+{
+    return matchedPairs == 12;
+}
 
 int GameLogic::getMatchedPairs()
 {

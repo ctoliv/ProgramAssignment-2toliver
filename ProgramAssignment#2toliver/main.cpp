@@ -195,6 +195,12 @@ void draw_status(GameLogic& gameLogic, ALLEGRO_FONT* font)
     al_draw_textf(font, al_map_rgb(255, 255, 255),
         left + 10, top + 60, 0,
         "Left: %d", gameLogic.getRemainingPairs());
+    if (gameLogic.isGameOver())
+    {
+        al_draw_text(font, al_map_rgb(255, 255, 0),
+            left + 10, top + 90, 0,
+            "You win!");
+    }
 }
 
 // Draws a primitive shape based on the hidden shape ID

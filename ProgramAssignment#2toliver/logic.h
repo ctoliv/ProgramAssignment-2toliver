@@ -18,6 +18,7 @@ public:
     bool hasPendingNonMatch();
     int getMatchedPairs();
     int getRemainingPairs();
+    bool isGameOver();
 
 private:
     // Stores the hidden shape IDs for each card
