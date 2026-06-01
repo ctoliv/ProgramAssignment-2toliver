@@ -12,6 +12,13 @@ GameLogic::GameLogic()
 // Initializes the board arrays
 void GameLogic::reset()
 {
+    // Clear selection tracking
+    firstRow = -1;
+    firstCol = -1;
+    secondRow = -1;
+    secondCol = -1;
+    selectionCount = 0;
+
     for (int row = 0; row < 5; row++)
     {
         for (int col = 0; col < 5; col++)
@@ -87,6 +94,20 @@ bool GameLogic::selectCard(int row, int col)
     }
 
     revealed[row][col] = true;
+    // Store the first selected card
+    if (selectionCount == 0)
+    {
+        firstRow = row;
+        firstCol = col;
+        selectionCount = 1;
+    }
+    // Store the second selected card
+    else if (selectionCount == 1)
+    {
+        secondRow = row;
+        secondCol = col;
+        selectionCount = 2;
+    }
     return true;
 }
 

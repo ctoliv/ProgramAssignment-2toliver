@@ -24,6 +24,15 @@ private:
     // Tracks which cards have already been matched
     bool matched[5][5];
 
+    // Stores the first and second selected cards
+    int firstRow;
+    int firstCol;
+    int secondRow;
+    int secondCol;
+
+    // 0 = no card selected, 1 = first card selected, 2 = second card selected
+    int selectionCount;
+
     // Randomly fills the board with 12 matching pairs
     void createRandomBoard();
 };
