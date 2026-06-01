@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include "logic.h"
 
-
-// Window and grid constants
+// Window and grid setup
 const int WIDTH = 640;
 const int HEIGHT = 640;
 const int ROWS = 5;
@@ -28,7 +27,7 @@ int main()
 
     GameLogic gameLogic;
 
-    // Used to wait 5 seconds before hiding non-matching cards
+    // Used to delay hiding non-matching cards.
     bool waitingToHide = false;
     double hideStartTime = 0;
 
@@ -66,30 +65,25 @@ int main()
     al_register_event_source(event_queue, al_get_timer_event_source(timer));
 
     al_start_timer(timer);
-    // Draw the starting grid
-    al_clear_to_color(al_map_rgb(0, 0, 0));
-    draw_grid();
-    al_flip_display();
 
     while (!done)
     {
         ALLEGRO_EVENT ev;
         al_wait_for_event(event_queue, &ev);
 
-        // Close the program if the window is closed
         if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
         {
             done = true;
         }
         else if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
         {
-            // Convert mouse position into board position
+            // Convert mouse position into a grid row and column.
             int col = ev.mouse.x / CELL_SIZE;
             int row = ev.mouse.y / CELL_SIZE;
 
             if (gameLogic.selectCard(row, col))
             {
-                // Start the 5-second timer if the selected pair does not match
+                // Start the delay when two selected cards do not match.
                 if (gameLogic.hasPendingNonMatch())
                 {
                     waitingToHide = true;
@@ -97,12 +91,12 @@ int main()
                 }
             }
         }
-
         else if (ev.type == ALLEGRO_EVENT_TIMER)
         {
-            // Timer event keeps the game updating even when the mouse is not moving
+            // Keeps the game updating even when the mouse is not moving.
         }
-        // Hide non-matching cards after 5 seconds
+
+        // Hide non-matching cards after 5 seconds.
         if (waitingToHide && al_get_time() - hideStartTime >= 5.0)
         {
             gameLogic.hideNonMatch();
@@ -110,11 +104,14 @@ int main()
         }
 
         al_clear_to_color(al_map_rgb(0, 0, 0));
+
         draw_grid();
         draw_cards(gameLogic);
         draw_status(gameLogic, font);
+
         al_flip_display();
     }
+
     al_destroy_font(font);
     al_destroy_timer(timer);
     al_destroy_event_queue(event_queue);
@@ -123,7 +120,7 @@ int main()
     return 0;
 }
 
-// Draws the 5x5 board grid
+// Draws the 5x5 game board.
 void draw_grid()
 {
     for (int i = 0; i <= ROWS; i++)
@@ -139,13 +136,14 @@ void draw_grid()
     }
 }
 
-// Draws all currently revealed or matched cards
+// Draws revealed cards and marks matched cards.
 void draw_cards(GameLogic& gameLogic)
 {
     for (int row = 0; row < ROWS; row++)
     {
         for (int col = 0; col < COLS; col++)
         {
+            // The bottom-right square is reserved for status information.
             if (row == 4 && col == 4)
             {
                 continue;
@@ -167,7 +165,6 @@ void draw_cards(GameLogic& gameLogic)
                     left + 10, top + CELL_SIZE - 10,
                     al_map_rgb(255, 0, 0), 4);
             }
-            // Revealed but not matched cards should show the shape
             else if (gameLogic.isRevealed(row, col))
             {
                 int shape = gameLogic.getShape(row, col);
@@ -177,12 +174,12 @@ void draw_cards(GameLogic& gameLogic)
     }
 }
 
+// Draws the status information in the bottom-right square.
 void draw_status(GameLogic& gameLogic, ALLEGRO_FONT* font)
 {
     int left = 4 * CELL_SIZE;
     int top = 4 * CELL_SIZE;
 
-    // Status box uses the bottom-right square
     al_draw_filled_rectangle(left, top, WIDTH, HEIGHT,
         al_map_rgb(40, 80, 40));
 
@@ -195,6 +192,7 @@ void draw_status(GameLogic& gameLogic, ALLEGRO_FONT* font)
     al_draw_textf(font, al_map_rgb(255, 255, 255),
         left + 10, top + 60, 0,
         "Left: %d", gameLogic.getRemainingPairs());
+
     if (gameLogic.isGameOver())
     {
         al_draw_text(font, al_map_rgb(255, 255, 0),
@@ -203,7 +201,7 @@ void draw_status(GameLogic& gameLogic, ALLEGRO_FONT* font)
     }
 }
 
-// Draws a primitive shape based on the hidden shape ID
+// Draws one of twelve card shapes.
 void draw_shape(int shape, int centerX, int centerY)
 {
     if (shape == 1)

@@ -4,15 +4,12 @@
 
 GameLogic::GameLogic()
 {
-    
     srand((unsigned int)time(0));
     reset();
 }
 
-// Initializes the board arrays
 void GameLogic::reset()
 {
-    // Clear selection tracking
     firstRow = -1;
     firstCol = -1;
     secondRow = -1;
@@ -30,22 +27,22 @@ void GameLogic::reset()
             matched[row][col] = false;
         }
     }
+
     createRandomBoard();
 }
 
-// Creates 12 pairs and places them randomly in the first 24 boxes
 void GameLogic::createRandomBoard()
 {
     int shapes[24];
 
-    // Create 12 matching pairs using shape IDs 1 through 12
+    // Create 12 matching pairs.
     for (int i = 0; i < 12; i++)
     {
         shapes[i * 2] = i + 1;
         shapes[i * 2 + 1] = i + 1;
     }
 
-    // Shuffle the shape list
+    // Randomize the order of the pairs.
     for (int i = 0; i < 24; i++)
     {
         int randomIndex = rand() % 24;
@@ -61,7 +58,7 @@ void GameLogic::createRandomBoard()
     {
         for (int col = 0; col < 5; col++)
         {
-            // Bottom-right box is only for status information
+            // Reserve the bottom-right square for status information.
             if (row == 4 && col == 4)
             {
                 pattern[row][col] = 0;
@@ -74,41 +71,41 @@ void GameLogic::createRandomBoard()
         }
     }
 }
-// Reveals a card if it is inside the board and not already matched/revealed
+
 bool GameLogic::selectCard(int row, int col)
 {
-    // Bounds checking
+    // Rejects clicks outside the board.
     if (row < 0 || row >= 5 || col < 0 || col >= 5)
     {
         return false;
     }
 
+    // Do not allow new selections while a non-match is still showing.
     if (pendingNonMatch)
     {
         return false;
     }
 
-    // The bottom-right box is for status, not a card
+    // The bottom-right square displays status.
     if (row == 4 && col == 4)
     {
         return false;
     }
 
-    // Do not allow selecting an already revealed or matched card
+    // Do not allow already revealed or matched cards to be selected again.
     if (matched[row][col] || revealed[row][col])
     {
         return false;
     }
 
     revealed[row][col] = true;
-    // Store the first selected card
+
     if (selectionCount == 0)
     {
         firstRow = row;
         firstCol = col;
         selectionCount = 1;
     }
-    // Store the second selected card
     else if (selectionCount == 1)
     {
         secondRow = row;
@@ -116,9 +113,9 @@ bool GameLogic::selectCard(int row, int col)
         selectionCount = 2;
         checkMatch();
     }
+
     return true;
 }
-
 // Checks whether the first and second selected cards match
 void GameLogic::checkMatch()
 {
@@ -136,8 +133,7 @@ void GameLogic::checkMatch()
     }
     else
     {
-        // Keep the cards revealed for now.
-        // Main will hide them after 5 seconds.
+        // Keep both cards visible until main hides them after 5 seconds.
         pendingNonMatch = true;
     }
 }
