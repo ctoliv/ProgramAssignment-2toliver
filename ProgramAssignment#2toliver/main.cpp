@@ -1,6 +1,7 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <stdio.h>
+#include "logic.h"
 
 // Window and grid constants
 const int WIDTH = 640;
@@ -10,6 +11,8 @@ const int COLS = 5;
 const int CELL_SIZE = 128;
 
 void draw_grid();
+void draw_cards(GameLogic& gameLogic);
+void draw_shape(int shape, int centerX, int centerY);
 
 int main()
 {
@@ -17,6 +20,8 @@ int main()
     ALLEGRO_EVENT_QUEUE* event_queue = NULL;
 
     bool done = false;
+
+    GameLogic gameLogic;
 
     // Initialize Allegro
     if (!al_init())
@@ -62,19 +67,16 @@ int main()
         }
         else if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN)
         {
-            // Convert mouse coordinates into grid row and column
-            int mouseX = ev.mouse.x;
-            int mouseY = ev.mouse.y;
+            // Convert mouse position into board position
+            int col = ev.mouse.x / CELL_SIZE;
+            int row = ev.mouse.y / CELL_SIZE;
 
-            int col = mouseX / CELL_SIZE;
-            int row = mouseY / CELL_SIZE;
-
-            // This helps test that clicks are mapping to the correct square
-            printf("Clicked row: %d col: %d\n", row, col);
+            gameLogic.selectCard(row, col);
         }
 
         al_clear_to_color(al_map_rgb(0, 0, 0));
         draw_grid();
+        draw_cards(gameLogic);
         al_flip_display();
     }
 
@@ -97,5 +99,125 @@ void draw_grid()
     {
         al_draw_line(i * CELL_SIZE, 0, i * CELL_SIZE, HEIGHT,
             al_map_rgb(255, 255, 255), 2);
+    }
+}
+
+// Draws all currently revealed or matched cards
+void draw_cards(GameLogic& gameLogic)
+{
+    for (int row = 0; row < ROWS; row++)
+    {
+        for (int col = 0; col < COLS; col++)
+        {
+            if (row == 4 && col == 4)
+            {
+                continue;
+            }
+
+            if (gameLogic.isRevealed(row, col))
+            {
+                int left = col * CELL_SIZE;
+                int top = row * CELL_SIZE;
+
+                int centerX = left + CELL_SIZE / 2;
+                int centerY = top + CELL_SIZE / 2;
+
+                int shape = gameLogic.getShape(row, col);
+                draw_shape(shape, centerX, centerY);
+            }
+        }
+    }
+}
+
+// Draws a primitive shape based on the hidden shape ID
+void draw_shape(int shape, int centerX, int centerY)
+{
+    if (shape == 1)
+    {
+        // Red circle
+        al_draw_filled_circle(centerX, centerY, 30, al_map_rgb(255, 0, 0));
+    }
+    else if (shape == 2)
+    {
+        // Blue circle
+        al_draw_filled_circle(centerX, centerY, 30, al_map_rgb(0, 120, 255));
+    }
+    else if (shape == 3)
+    {
+        // Green square
+        al_draw_filled_rectangle(centerX - 30, centerY - 30,
+            centerX + 30, centerY + 30, al_map_rgb(0, 255, 0));
+    }
+    else if (shape == 4)
+    {
+        // Purple square
+        al_draw_filled_rectangle(centerX - 30, centerY - 30,
+            centerX + 30, centerY + 30, al_map_rgb(150, 0, 255));
+    }
+    else if (shape == 5)
+    {
+        // Yellow triangle
+        al_draw_filled_triangle(centerX, centerY - 35,
+            centerX - 35, centerY + 30,
+            centerX + 35, centerY + 30,
+            al_map_rgb(255, 255, 0));
+    }
+    else if (shape == 6)
+    {
+        // Orange triangle
+        al_draw_filled_triangle(centerX, centerY - 35,
+            centerX - 35, centerY + 30,
+            centerX + 35, centerY + 30,
+            al_map_rgb(255, 120, 0));
+    }
+    else if (shape == 7)
+    {
+        // Cyan oval
+        al_draw_filled_ellipse(centerX, centerY, 35, 25,
+            al_map_rgb(0, 255, 255));
+    }
+    else if (shape == 8)
+    {
+        // Pink oval
+        al_draw_filled_ellipse(centerX, centerY, 35, 25,
+            al_map_rgb(255, 0, 180));
+    }
+    else if (shape == 9)
+    {
+        // White diamond
+        al_draw_filled_triangle(centerX, centerY - 35,
+            centerX - 35, centerY,
+            centerX, centerY + 35,
+            al_map_rgb(255, 255, 255));
+
+        al_draw_filled_triangle(centerX, centerY - 35,
+            centerX + 35, centerY,
+            centerX, centerY + 35,
+            al_map_rgb(255, 255, 255));
+    }
+    else if (shape == 10)
+    {
+        // Gray diamond
+        al_draw_filled_triangle(centerX, centerY - 35,
+            centerX - 35, centerY,
+            centerX, centerY + 35,
+            al_map_rgb(150, 150, 150));
+
+        al_draw_filled_triangle(centerX, centerY - 35,
+            centerX + 35, centerY,
+            centerX, centerY + 35,
+            al_map_rgb(150, 150, 150));
+    }
+    else if (shape == 11)
+    {
+        // Red outlined circle
+        al_draw_circle(centerX, centerY, 35, al_map_rgb(255, 0, 0), 5);
+        al_draw_filled_circle(centerX, centerY, 12, al_map_rgb(255, 0, 0));
+    }
+    else if (shape == 12)
+    {
+        // Blue outlined circle
+        al_draw_circle(centerX, centerY, 35, al_map_rgb(0, 120, 255), 5);
+        al_draw_filled_circle(centerX, centerY, 12, al_map_rgb(0, 120, 255));
     }
 }

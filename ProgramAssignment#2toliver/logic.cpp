@@ -65,6 +65,30 @@ void GameLogic::createRandomBoard()
         }
     }
 }
+// Reveals a card if it is inside the board and not already matched/revealed
+bool GameLogic::selectCard(int row, int col)
+{
+    // Bounds checking
+    if (row < 0 || row >= 5 || col < 0 || col >= 5)
+    {
+        return false;
+    }
+
+    // The bottom-right box is for status, not a card
+    if (row == 4 && col == 4)
+    {
+        return false;
+    }
+
+    // Do not allow selecting an already revealed or matched card
+    if (matched[row][col] || revealed[row][col])
+    {
+        return false;
+    }
+
+    revealed[row][col] = true;
+    return true;
+}
 
 int GameLogic::getShape(int row, int col)
 {

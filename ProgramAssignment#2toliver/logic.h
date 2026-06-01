@@ -12,6 +12,7 @@ public:
     int getShape(int row, int col);
     bool isRevealed(int row, int col);
     bool isMatched(int row, int col);
+    bool selectCard(int row, int col);
 
 private:
     // Stores the hidden shape IDs for each card
