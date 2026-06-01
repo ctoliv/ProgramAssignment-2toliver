@@ -9,10 +9,13 @@ public:
     void reset();
 
     // Accessor functions used by the graphics code
+    void hideNonMatch();
     int getShape(int row, int col);
     bool isRevealed(int row, int col);
     bool isMatched(int row, int col);
     bool selectCard(int row, int col);
+
+    bool hasPendingNonMatch();
     int getMatchedPairs();
     int getRemainingPairs();
 
@@ -34,6 +37,8 @@ private:
 
     // 0 = no card selected, 1 = first card selected, 2 = second card selected
     int selectionCount;
+
+    bool pendingNonMatch;
 
     // Tracks how many pairs have been found
     int matchedPairs;

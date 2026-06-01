@@ -19,6 +19,7 @@ void GameLogic::reset()
     secondCol = -1;
     selectionCount = 0;
     matchedPairs = 0;
+    pendingNonMatch = false;
 
     for (int row = 0; row < 5; row++)
     {
@@ -82,6 +83,11 @@ bool GameLogic::selectCard(int row, int col)
         return false;
     }
 
+    if (pendingNonMatch)
+    {
+        return false;
+    }
+
     // The bottom-right box is for status, not a card
     if (row == 4 && col == 4)
     {
@@ -121,20 +127,43 @@ void GameLogic::checkMatch()
         matched[firstRow][firstCol] = true;
         matched[secondRow][secondCol] = true;
         matchedPairs++;
+
+        firstRow = -1;
+        firstCol = -1;
+        secondRow = -1;
+        secondCol = -1;
+        selectionCount = 0;
     }
     else
     {
-        // Temporarily hide non-matches immediately.
+        // Keep the cards revealed for now.
+        // Main will hide them after 5 seconds.
+        pendingNonMatch = true;
+    }
+}
+
+void GameLogic::hideNonMatch()
+{
+    if (pendingNonMatch)
+    {
         revealed[firstRow][firstCol] = false;
         revealed[secondRow][secondCol] = false;
-    }
 
-    firstRow = -1;
-    firstCol = -1;
-    secondRow = -1;
-    secondCol = -1;
-    selectionCount = 0;
+        firstRow = -1;
+        firstCol = -1;
+        secondRow = -1;
+        secondCol = -1;
+        selectionCount = 0;
+
+        pendingNonMatch = false;
+    }
 }
+
+bool GameLogic::hasPendingNonMatch()
+{
+    return pendingNonMatch;
+}
+
 
 int GameLogic::getMatchedPairs()
 {

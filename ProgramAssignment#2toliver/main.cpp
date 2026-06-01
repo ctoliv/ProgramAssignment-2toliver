@@ -22,10 +22,15 @@ int main()
     ALLEGRO_DISPLAY* display = NULL;
     ALLEGRO_EVENT_QUEUE* event_queue = NULL;
     ALLEGRO_FONT* font = NULL;
+    ALLEGRO_TIMER* timer = NULL;
 
     bool done = false;
 
     GameLogic gameLogic;
+
+    // Used to wait 5 seconds before hiding non-matching cards
+    bool waitingToHide = false;
+    double hideStartTime = 0;
 
     // Initialize Allegro
     if (!al_init())
@@ -54,9 +59,13 @@ int main()
 
     // Create and register the event queue
     event_queue = al_create_event_queue();
+    timer = al_create_timer(1.0 / 60.0);
+
     al_register_event_source(event_queue, al_get_display_event_source(display));
     al_register_event_source(event_queue, al_get_mouse_event_source());
+    al_register_event_source(event_queue, al_get_timer_event_source(timer));
 
+    al_start_timer(timer);
     // Draw the starting grid
     al_clear_to_color(al_map_rgb(0, 0, 0));
     draw_grid();
@@ -78,7 +87,26 @@ int main()
             int col = ev.mouse.x / CELL_SIZE;
             int row = ev.mouse.y / CELL_SIZE;
 
-            gameLogic.selectCard(row, col);
+            if (gameLogic.selectCard(row, col))
+            {
+                // Start the 5-second timer if the selected pair does not match
+                if (gameLogic.hasPendingNonMatch())
+                {
+                    waitingToHide = true;
+                    hideStartTime = al_get_time();
+                }
+            }
+        }
+
+        else if (ev.type == ALLEGRO_EVENT_TIMER)
+        {
+            // Timer event keeps the game updating even when the mouse is not moving
+        }
+        // Hide non-matching cards after 5 seconds
+        if (waitingToHide && al_get_time() - hideStartTime >= 5.0)
+        {
+            gameLogic.hideNonMatch();
+            waitingToHide = false;
         }
 
         al_clear_to_color(al_map_rgb(0, 0, 0));
@@ -87,7 +115,8 @@ int main()
         draw_status(gameLogic, font);
         al_flip_display();
     }
-
+    al_destroy_font(font);
+    al_destroy_timer(timer);
     al_destroy_event_queue(event_queue);
     al_destroy_display(display);
 
