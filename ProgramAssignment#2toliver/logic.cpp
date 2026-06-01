@@ -18,6 +18,7 @@ void GameLogic::reset()
     secondRow = -1;
     secondCol = -1;
     selectionCount = 0;
+    matchedPairs = 0;
 
     for (int row = 0; row < 5; row++)
     {
@@ -107,8 +108,42 @@ bool GameLogic::selectCard(int row, int col)
         secondRow = row;
         secondCol = col;
         selectionCount = 2;
+        checkMatch();
     }
     return true;
+}
+
+// Checks whether the first and second selected cards match
+void GameLogic::checkMatch()
+{
+    if (pattern[firstRow][firstCol] == pattern[secondRow][secondCol])
+    {
+        matched[firstRow][firstCol] = true;
+        matched[secondRow][secondCol] = true;
+        matchedPairs++;
+    }
+    else
+    {
+        // Temporarily hide non-matches immediately.
+        revealed[firstRow][firstCol] = false;
+        revealed[secondRow][secondCol] = false;
+    }
+
+    firstRow = -1;
+    firstCol = -1;
+    secondRow = -1;
+    secondCol = -1;
+    selectionCount = 0;
+}
+
+int GameLogic::getMatchedPairs()
+{
+    return matchedPairs;
+}
+
+int GameLogic::getRemainingPairs()
+{
+    return 12 - matchedPairs;
 }
 
 int GameLogic::getShape(int row, int col)

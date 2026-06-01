@@ -114,14 +114,25 @@ void draw_cards(GameLogic& gameLogic)
                 continue;
             }
 
-            if (gameLogic.isRevealed(row, col))
+            int left = col * CELL_SIZE;
+            int top = row * CELL_SIZE;
+            int centerX = left + CELL_SIZE / 2;
+            int centerY = top + CELL_SIZE / 2;
+
+            // Only matched cards get the red X
+            if (gameLogic.isMatched(row, col))
             {
-                int left = col * CELL_SIZE;
-                int top = row * CELL_SIZE;
+                al_draw_line(left + 10, top + 10,
+                    left + CELL_SIZE - 10, top + CELL_SIZE - 10,
+                    al_map_rgb(255, 0, 0), 4);
 
-                int centerX = left + CELL_SIZE / 2;
-                int centerY = top + CELL_SIZE / 2;
-
+                al_draw_line(left + CELL_SIZE - 10, top + 10,
+                    left + 10, top + CELL_SIZE - 10,
+                    al_map_rgb(255, 0, 0), 4);
+            }
+            // Revealed but not matched cards should show the shape
+            else if (gameLogic.isRevealed(row, col))
+            {
                 int shape = gameLogic.getShape(row, col);
                 draw_shape(shape, centerX, centerY);
             }

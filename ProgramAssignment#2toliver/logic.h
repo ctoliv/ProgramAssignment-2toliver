@@ -13,6 +13,8 @@ public:
     bool isRevealed(int row, int col);
     bool isMatched(int row, int col);
     bool selectCard(int row, int col);
+    int getMatchedPairs();
+    int getRemainingPairs();
 
 private:
     // Stores the hidden shape IDs for each card
@@ -33,6 +35,12 @@ private:
     // 0 = no card selected, 1 = first card selected, 2 = second card selected
     int selectionCount;
 
+    // Tracks how many pairs have been found
+    int matchedPairs;
+
     // Randomly fills the board with 12 matching pairs
     void createRandomBoard();
+
+    // Compares the two selected cards
+    void checkMatch();
 };
